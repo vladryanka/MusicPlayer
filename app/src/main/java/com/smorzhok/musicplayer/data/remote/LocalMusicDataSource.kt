@@ -1,10 +1,8 @@
 package com.smorzhok.musicplayer.data.remote
 
-import com.smorzhok.musicplayer.data.database.DownloadedTrackEntity
+import com.smorzhok.musicplayer.data.dto.TrackDto
+
 
 interface LocalMusicDataSource {
-    suspend fun getAllTracks(): List<DownloadedTrackEntity>
-    suspend fun insertTrack(track: DownloadedTrackEntity)
-    suspend fun deleteTrack(trackId: Long)
-    suspend fun searchTracks(query: String): List<DownloadedTrackEntity>
+    suspend fun getAllTracks(): List<TrackDto>
 }
