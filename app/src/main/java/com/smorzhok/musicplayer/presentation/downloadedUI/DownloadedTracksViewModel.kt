@@ -18,11 +18,7 @@ class DownloadedTracksViewModel(
 
     private var allTracks: List<Track> = emptyList()
 
-    init {
-        loadDownloadedTracks()
-    }
-
-    private fun loadDownloadedTracks() {
+     fun loadDownloadedTracks() {
         viewModelScope.launch {
             allTracks = trackRepository.getDownloadedTracks()
             _tracks.value = allTracks

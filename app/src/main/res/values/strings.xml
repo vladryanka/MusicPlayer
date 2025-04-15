@@ -7,4 +7,6 @@
     <string name="music_name">Название трека</string>
     <string name="artist_name">Имя исполнителя</string>
     <string name="album_picture">Обложка трека</string>
+    <string name="permissions_arent_granted">Разрешение на доступ к аудио не предоставлено</string>
+    <string name="permission_request">Permission needed to load local tracks</string>
 </resources>
