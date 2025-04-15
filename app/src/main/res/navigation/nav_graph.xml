@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/downloadedTracksFragment">
+
+    <fragment
+        android:id="@+id/downloadedTracksFragment"
+        android:name="com.smorzhok.musicplayer.presentation.DownloadedTracksFragment"
+        android:label="Downloaded Tracks" />
+
+    <fragment
+        android:id="@+id/onlineTracksFragment"
+        android:name="com.smorzhok.musicplayer.presentation.OnlineTracksFragment"
+        android:label="Online Tracks" />
+
+    <fragment
+        android:id="@+id/playerFragment"
+        android:name="com.smorzhok.musicplayer.presentation.PlayerFragment"
+        android:label="Player" />
+</navigation>
