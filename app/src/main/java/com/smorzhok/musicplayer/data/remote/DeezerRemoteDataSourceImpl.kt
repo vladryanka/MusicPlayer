@@ -13,4 +13,8 @@ class DeezerRemoteDataSourceImpl(
     override suspend fun getTrackById(id: Long): TrackDto {
         return apiService.getTrackById(id)
     }
+
+    override suspend fun getChartTracks(index: Int): List<TrackDto> {
+        return apiService.getChartTracks(index).data
+    }
 }

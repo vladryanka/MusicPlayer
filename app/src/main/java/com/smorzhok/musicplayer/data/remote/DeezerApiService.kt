@@ -2,7 +2,6 @@ package com.smorzhok.musicplayer.data.remote
 
 import android.content.Context
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.smorzhok.musicplayer.data.database.AppDatabase
 import com.smorzhok.musicplayer.data.dto.TrackDto
 import com.smorzhok.musicplayer.data.dto.TrackListDto
 import com.smorzhok.musicplayer.data.repository.PlayerRepositoryImpl
@@ -21,6 +20,12 @@ import retrofit2.http.Query
 import java.util.concurrent.TimeUnit
 
 interface DeezerApiService {
+
+    @GET("chart")
+    suspend fun getChartTracks(
+        @Query("index") index: Int,
+        @Query("limit") limit: Int = 8
+    ): TrackListDto
 
     @GET("search")
     suspend fun searchTracks(@Query("q") query: String): TrackListDto
@@ -65,10 +70,8 @@ object RepositoryProvider {
     private val playerRepository: PlayerRepository = PlayerRepositoryImpl()
 
     fun initialize(context: Context) {
-        val database = AppDatabase.getInstance(context)
-        val dao = database.downloadedTrackDao()
 
-        val localDataSource = LocalMusicDataSourceImpl(dao)
+        val localDataSource = LocalMusicDataSourceImpl(context)
         val remoteDataSource = DeezerRemoteDataSourceImpl(DeezerApi.service)
 
         trackRepository = TrackRepositoryImpl(localDataSource, remoteDataSource)
