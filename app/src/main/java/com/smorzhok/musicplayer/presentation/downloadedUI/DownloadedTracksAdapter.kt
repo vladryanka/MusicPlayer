@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.smorzhok.musicplayer.R
 import com.smorzhok.musicplayer.databinding.ItemDownloadedTrackBinding
 import com.smorzhok.musicplayer.domain.model.Track
 
@@ -28,9 +29,19 @@ class DownloadedTracksAdapter (
         fun bind(track: Track) {
             binding.textViewTitle.text = track.title
             binding.textViewArtist.text = track.artist
-            Glide.with(binding.imageViewCover.context)
-                .load(track.coverUrl)
-                .into(binding.imageViewCover)
+
+            val imageView = binding.imageViewCover
+
+            if (track.coverUrl.isNotEmpty() || track.coverUrl == "") {
+                Glide.with(imageView.context)
+                    .load(track.coverUrl)
+                    .placeholder(R.drawable.photo_placeholder)
+                    .error(R.drawable.photo_placeholder)
+                    .into(imageView)
+            } else {
+                imageView.setImageResource(R.drawable.photo_placeholder)
+            }
+
 
             binding.root.setOnClickListener {
                 onTrackClick(track)
