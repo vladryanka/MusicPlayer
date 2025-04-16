@@ -2,6 +2,7 @@ package com.smorzhok.musicplayer.data.remote
 
 import android.content.Context
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.smorzhok.musicplayer.data.dto.ChartResponseDto
 import com.smorzhok.musicplayer.data.dto.TrackDto
 import com.smorzhok.musicplayer.data.dto.TrackListDto
 import com.smorzhok.musicplayer.data.repository.PlayerRepositoryImpl
@@ -25,7 +26,7 @@ interface DeezerApiService {
     suspend fun getChartTracks(
         @Query("index") index: Int,
         @Query("limit") limit: Int = 8
-    ): TrackListDto
+    ): ChartResponseDto
 
     @GET("search")
     suspend fun searchTracks(@Query("q") query: String): TrackListDto

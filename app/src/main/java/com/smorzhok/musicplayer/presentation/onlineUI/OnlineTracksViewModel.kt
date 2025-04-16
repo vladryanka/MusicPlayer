@@ -31,6 +31,7 @@ class OnlineTracksViewModel(
     fun searchTracks(query: String) {
         viewModelScope.launch {
             if (query.isBlank()) {
+                _tracks.value = emptyList()
                 loadDefaultTracks()
             } else {
                 val result = searchTracksApiUseCase.invoke(query)

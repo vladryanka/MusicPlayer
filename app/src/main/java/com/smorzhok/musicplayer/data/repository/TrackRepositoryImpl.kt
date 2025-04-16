@@ -1,6 +1,5 @@
 package com.smorzhok.musicplayer.data.repository
 
-import android.util.Log
 import com.smorzhok.musicplayer.data.dto.TrackDto
 import com.smorzhok.musicplayer.data.mapper.toDomain
 import com.smorzhok.musicplayer.data.remote.DeezerRemoteDataSource
@@ -22,9 +21,9 @@ class TrackRepositoryImpl(
     }
 
     override suspend fun getChartTracks(): List<Track> {
-        index+=8
-        Log.d("Doing", index.toString())
-        return remoteDataSource.getChartTracks(index).map{ it.toDomain() }
+        val result = remoteDataSource.getChartTracks(index)
+        index += 8
+        return result.map { it.toDomain() }
     }
 
     override suspend fun getDownloadedTracks(): List<Track> {
