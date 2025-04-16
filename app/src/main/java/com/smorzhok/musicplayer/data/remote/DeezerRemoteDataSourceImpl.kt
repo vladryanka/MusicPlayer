@@ -1,5 +1,6 @@
 package com.smorzhok.musicplayer.data.remote
 
+import android.util.Log
 import com.smorzhok.musicplayer.data.dto.TrackDto
 
 class DeezerRemoteDataSourceImpl(
@@ -15,6 +16,8 @@ class DeezerRemoteDataSourceImpl(
     }
 
     override suspend fun getChartTracks(index: Int): List<TrackDto> {
-        return apiService.getChartTracks(index).data
+        val responce = apiService.getChartTracks(index).data
+        Log.d("Doing", responce.toString())
+        return responce
     }
 }

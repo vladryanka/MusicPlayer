@@ -6,6 +6,13 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <TextView
+        android:id="@+id/textViewHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/search"
+        android:textSize="32.dp"/>
+
     <EditText
         android:id="@+id/searchEditText"
         android:layout_width="match_parent"
