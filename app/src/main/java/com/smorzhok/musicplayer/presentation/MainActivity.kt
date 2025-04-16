@@ -61,9 +61,7 @@ class MainActivity : AppCompatActivity() {
             ContextCompat.checkSelfPermission(
                 this,
                 permission
-            ) == PackageManager.PERMISSION_GRANTED -> {
-
-            }
+            ) == PackageManager.PERMISSION_GRANTED -> {}
 
             ActivityCompat.shouldShowRequestPermissionRationale(this, permission) -> {
                 Toast.makeText(this, getString(R.string.permission_request), Toast.LENGTH_LONG)

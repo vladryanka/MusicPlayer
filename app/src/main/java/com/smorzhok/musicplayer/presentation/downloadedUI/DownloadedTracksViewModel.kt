@@ -4,15 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smorzhok.musicplayer.domain.model.Track
 import com.smorzhok.musicplayer.domain.repository.TrackRepository
+import com.smorzhok.musicplayer.domain.usecase.track.GetDownloadedTracksUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class DownloadedTracksViewModel(
-    private val trackRepository: TrackRepository
+    trackRepository: TrackRepository
 ) : ViewModel() {
 
+    private val getDownloadedTracksUseCase = GetDownloadedTracksUseCase(trackRepository)
     private val _tracks = MutableStateFlow<List<Track>>(emptyList())
     val tracks: StateFlow<List<Track>> = _tracks.asStateFlow()
 
@@ -20,7 +22,7 @@ class DownloadedTracksViewModel(
 
      fun loadDownloadedTracks() {
         viewModelScope.launch {
-            allTracks = trackRepository.getDownloadedTracks()
+            allTracks = getDownloadedTracksUseCase.invoke()
             _tracks.value = allTracks
         }
     }
