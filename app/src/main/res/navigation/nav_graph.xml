@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/downloadedTracksFragment"
-        android:name="com.smorzhok.musicplayer.presentation.DownloadedTracksFragment"
+        android:name="com.smorzhok.musicplayer.presentation.downloadedUI.DownloadedTracksFragment"
         android:label="Downloaded Tracks" />
 
     <fragment
