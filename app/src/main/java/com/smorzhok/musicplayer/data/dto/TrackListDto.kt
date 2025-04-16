@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TrackListDto(
-    val data: List<TrackDto>
+    val data: List<TrackDto> = emptyList()
 )

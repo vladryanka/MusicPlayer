@@ -9,4 +9,6 @@
     <string name="album_picture">Обложка трека</string>
     <string name="permissions_arent_granted">Разрешение на доступ к аудио не предоставлено</string>
     <string name="permission_request">Permission needed to load local tracks</string>
+    <string name="search">Поиск по сохраненным</string>
+    <string name="search_from_internet">Поиск из сети</string>
 </resources>

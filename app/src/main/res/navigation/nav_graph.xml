@@ -11,7 +11,7 @@
 
     <fragment
         android:id="@+id/onlineTracksFragment"
-        android:name="com.smorzhok.musicplayer.presentation.OnlineTracksFragment"
+        android:name="com.smorzhok.musicplayer.presentation.onlineUI.OnlineTracksFragment"
         android:label="Online Tracks" />
 
     <fragment
