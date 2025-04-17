@@ -1,7 +1,6 @@
 package com.smorzhok.musicplayer.presentation.onlineUI
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,7 +47,6 @@ class OnlineTracksFragment : Fragment() {
         adapter = OnlineTracksAdapter { selectedTrack ->
             val allTracks = adapter.currentList
             val selectedIndex = allTracks.indexOfFirst { it.id == selectedTrack.id }
-            Log.d("Doing", selectedTrack.title)
             RepositoryProvider.getPlayerRepository().setTrackList(allTracks, selectedIndex)
 
             val action = OnlineTracksFragmentDirections
