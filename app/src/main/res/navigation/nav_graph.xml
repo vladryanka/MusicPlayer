@@ -16,6 +16,6 @@
 
     <fragment
         android:id="@+id/playerFragment"
-        android:name="com.smorzhok.musicplayer.presentation.PlayerFragment"
+        android:name="com.smorzhok.musicplayer.presentation.playerUI.PlayerFragment"
         android:label="Player" />
 </navigation>

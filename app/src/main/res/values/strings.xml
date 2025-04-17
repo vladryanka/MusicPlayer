@@ -12,4 +12,8 @@
     <string name="search">Поиск по сохраненным</string>
     <string name="search_from_internet">Поиск из сети</string>
     <string name="retry">Повторить</string>
+    <string name="previous">Previous</string>
+    <string name="play_pause">Play/Pause</string>
+    <string name="next">Next</string>
+    <string name="time">00:00</string>
 </resources>
