@@ -7,5 +7,5 @@ interface TrackRepository {
     suspend fun searchTracksApi(query: String): List<Track>
     suspend fun getDownloadedTracks(): List<Track>
     suspend fun getTrackById(id: Long): TrackDto
-    suspend fun getChartTracks(): List<Track>
+    suspend fun getChartTracks(index: Int): List<Track>
 }

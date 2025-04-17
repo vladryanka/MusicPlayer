@@ -104,7 +104,8 @@ class OnlineTracksFragment : Fragment() {
             }
         }
 
-        viewModel.loadDefaultTracks()
+        if (viewModel.tracks.value.isEmpty())
+            viewModel.loadDefaultTracks()
     }
 
     override fun onDestroyView() {

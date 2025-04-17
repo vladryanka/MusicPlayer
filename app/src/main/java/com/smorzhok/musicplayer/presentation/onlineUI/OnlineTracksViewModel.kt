@@ -24,20 +24,31 @@ class OnlineTracksViewModel(
     private val _tracks = MutableStateFlow<List<Track>>(emptyList())
     val tracks: StateFlow<List<Track>> = _tracks.asStateFlow()
 
+    private var chartTracks: List<Track> = emptyList()
+
     private val _errorMessage = MutableSharedFlow<String>()
     val errorMessage: SharedFlow<String> = _errorMessage
 
     private var isLoading = false
     private var isLastPage = false
+    companion object{
+        var index = 0
+    }
+
 
     fun loadDefaultTracks() {
-        if (isLoading || isLastPage) return
+        if (_tracks.value.isNotEmpty() || isLoading || isLastPage) {
+            _tracks.value = chartTracks
+            return
+        }
+
         isLoading = true
 
         viewModelScope.launch {
             try {
-                val result = getChartTracksUseCase.invoke()
-                _tracks.value += result
+                val result = getChartTracksUseCase.invoke(index)
+                chartTracks += result
+                _tracks.value = chartTracks
 
                 if (result.size < 8) {
                     isLastPage = true
@@ -50,15 +61,15 @@ class OnlineTracksViewModel(
                 isLoading = false
             }
         }
+
     }
 
     fun searchTracks(query: String) {
         viewModelScope.launch {
             try {
                 if (query.isBlank()) {
-                    _tracks.value = emptyList()
                     isLastPage = false
-                    loadDefaultTracks()
+                    _tracks.value = chartTracks
                 } else {
                     isLoading = true
                     val result = searchTracksApiUseCase.invoke(query)
@@ -76,6 +87,7 @@ class OnlineTracksViewModel(
     }
 
     fun loadMoreTracks() {
+        index+=8
         loadDefaultTracks()
     }
 
