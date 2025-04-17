@@ -68,7 +68,7 @@ object DeezerApi {
 object RepositoryProvider {
 
     private lateinit var trackRepository: TrackRepository
-    private val playerRepository: PlayerRepository = PlayerRepositoryImpl()
+    private lateinit var playerRepository: PlayerRepository
 
     fun initialize(context: Context) {
 
@@ -76,6 +76,7 @@ object RepositoryProvider {
         val remoteDataSource = DeezerRemoteDataSourceImpl(DeezerApi.service)
 
         trackRepository = TrackRepositoryImpl(localDataSource, remoteDataSource)
+        playerRepository = PlayerRepositoryImpl(context)
     }
 
     fun getTrackRepository(): TrackRepository {
