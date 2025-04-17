@@ -9,6 +9,7 @@ interface PlayerRepository {
     fun play(track: Track)
     fun pause()
     fun resume()
+    fun getTrackList(): List<Track>
     fun stop()
     fun seekTo(position: Int)
     fun playNext()
@@ -16,4 +17,5 @@ interface PlayerRepository {
     fun getCurrentTrack(): Track?
     fun observePlaybackState(): Flow<PlaybackState>
     fun observeProgress(): Flow<PlaybackProgress>
+    fun setTrackList(tracks: List<Track>, selectedIndex: Int)
 }

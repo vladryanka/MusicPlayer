@@ -42,6 +42,10 @@ class PlayerFragment : Fragment() {
 
         player = ExoPlayer.Builder(requireContext()).build()
 
+        val selectedIndex = PlayerFragmentArgs.fromBundle(requireArguments()).initialIndex
+
+        viewModel.initWithTrackIndex(selectedIndex)
+
         lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->

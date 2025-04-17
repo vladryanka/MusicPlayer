@@ -1,10 +1,10 @@
 package com.smorzhok.musicplayer.presentation.playerUI
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smorzhok.musicplayer.domain.model.Track
 import com.smorzhok.musicplayer.domain.repository.PlayerRepository
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,7 +18,13 @@ class PlayerViewModel(
     private val _uiState = MutableStateFlow(PlayerUiState())
     val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
 
-    private var updateJob: Job? = null
+    fun initWithTrackIndex(index: Int) {
+        Log.d("Doing", index.toString())
+        val track = playerRepository.getTrackList()[index]
+        _uiState.value = PlayerUiState(track = track)
+        Log.d("Doing", track.title)
+        playerRepository.play(track)
+    }
 
     init {
         viewModelScope.launch {

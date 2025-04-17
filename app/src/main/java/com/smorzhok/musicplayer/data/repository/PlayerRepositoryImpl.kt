@@ -1,5 +1,6 @@
 package com.smorzhok.musicplayer.data.repository
 
+import android.util.Log
 import com.smorzhok.musicplayer.domain.model.PlaybackProgress
 import com.smorzhok.musicplayer.domain.model.PlaybackState
 import com.smorzhok.musicplayer.domain.model.Track
@@ -13,8 +14,19 @@ class PlayerRepositoryImpl : PlayerRepository {
     private val playbackState = MutableStateFlow(PlaybackState.STOPPED)
     private val playbackProgress = MutableStateFlow(PlaybackProgress(0, 0))
 
+    private val trackList = mutableListOf<Track>()
+
+    override fun setTrackList(tracks: List<Track>, selectedIndex: Int) {
+        trackList.clear()
+        trackList.addAll(tracks)
+        currentTrack = trackList[selectedIndex]
+    }
+
+    override fun getTrackList(): List<Track> = trackList
+
     override fun play(track: Track) {
         currentTrack = track
+        Log.d("Doing", track.title)
         playbackState.value = PlaybackState.PLAYING
         playbackProgress.value = PlaybackProgress(0, track.duration)
     }
@@ -39,11 +51,13 @@ class PlayerRepositoryImpl : PlayerRepository {
     }
 
     override fun playNext() {
-        //передать новый track в play()
+        val index = trackList.indexOf(currentTrack)
+        if (index + 1 < trackList.size) play(trackList[index + 1])
     }
 
     override fun playPrevious() {
-        // передать новый track в play()
+        val index = trackList.indexOf(currentTrack)
+        if (index - 1 >= 0) play(trackList[index - 1])
     }
 
     override fun getCurrentTrack(): Track? = currentTrack
