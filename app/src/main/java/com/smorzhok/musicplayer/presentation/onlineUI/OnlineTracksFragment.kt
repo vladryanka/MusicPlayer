@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.smorzhok.musicplayer.R
 import com.smorzhok.musicplayer.data.remote.RepositoryProvider
 import com.smorzhok.musicplayer.databinding.FragmentDownloadedTracksBinding
@@ -23,6 +24,8 @@ class OnlineTracksFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var adapter: OnlineTracksAdapter
+    private var lastQuery: String? = null
+
     private val viewModel: OnlineTracksViewModel by viewModels {
         OnlineTracksViewModelFactory(RepositoryProvider.getTrackRepository())
     }
@@ -49,6 +52,26 @@ class OnlineTracksFragment : Fragment() {
 
         binding.recyclerViewDownloadedTracks.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewDownloadedTracks.adapter = adapter
+
+        binding.searchEditText.addTextChangedListener { editable ->
+            val query = editable.toString()
+            lastQuery = query
+            binding.progressBarPagination.visibility = View.VISIBLE
+            viewModel.searchTracks(query)
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.errorMessage.collectLatest { message ->
+                    Snackbar.make(binding.root, message, Snackbar.LENGTH_INDEFINITE)
+                        .setAction(getString(R.string.retry)) {
+                            lastQuery?.let {
+                                viewModel.searchTracks(it)
+                            } ?: viewModel.loadDefaultTracks()
+                        }.show()
+                }
+            }
+        }
 
         binding.recyclerViewDownloadedTracks.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
