@@ -1,6 +1,7 @@
 package com.smorzhok.musicplayer.presentation.onlineUI
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,21 +45,22 @@ class OnlineTracksFragment : Fragment() {
 
         binding.textViewHeader.text = getString(R.string.search_from_internet)
 
-        adapter = OnlineTracksAdapter { track ->
+        adapter = OnlineTracksAdapter { selectedTrack ->
+            val allTracks = adapter.currentList
+            val selectedIndex = allTracks.indexOfFirst { it.id == selectedTrack.id }
+            Log.d("Doing", selectedTrack.title)
+            RepositoryProvider.getPlayerRepository().setTrackList(allTracks, selectedIndex)
+
             val action = OnlineTracksFragmentDirections
-                .actionOnlineTracksFragmentToPlayerFragment(track)
+                .actionOnlineTracksFragmentToPlayerFragment(
+                    tracks = allTracks.toTypedArray(),
+                    initialIndex = selectedIndex
+                )
             findNavController().navigate(action)
         }
 
         binding.recyclerViewDownloadedTracks.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewDownloadedTracks.adapter = adapter
-
-        binding.searchEditText.addTextChangedListener { editable ->
-            val query = editable.toString()
-            lastQuery = query
-            binding.progressBarPagination.visibility = View.VISIBLE
-            viewModel.searchTracks(query)
-        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -90,6 +92,7 @@ class OnlineTracksFragment : Fragment() {
 
         binding.searchEditText.addTextChangedListener { editable ->
             val query = editable.toString()
+            lastQuery = query
             binding.progressBarPagination.visibility = View.VISIBLE
             viewModel.searchTracks(query)
         }

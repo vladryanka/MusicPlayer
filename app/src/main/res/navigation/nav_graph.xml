@@ -26,9 +26,15 @@
         android:id="@+id/playerFragment"
         android:name="com.smorzhok.musicplayer.presentation.playerUI.PlayerFragment"
         android:label="Player">
+
         <argument
-            android:name="track"
-            app:argType="com.smorzhok.musicplayer.domain.model.Track" />
+            android:name="tracks"
+            app:argType="com.smorzhok.musicplayer.domain.model.Track[]" />
+
+        <argument
+            android:name="initialIndex"
+            app:argType="integer"
+            android:defaultValue="0" />
     </fragment>
 
 </navigation>

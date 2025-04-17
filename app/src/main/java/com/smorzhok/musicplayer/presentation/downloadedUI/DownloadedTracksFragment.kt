@@ -16,7 +16,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.smorzhok.musicplayer.R
 import com.smorzhok.musicplayer.data.remote.RepositoryProvider
@@ -62,10 +61,10 @@ class DownloadedTracksFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = DownloadedTracksAdapter { track ->
+        adapter = DownloadedTracksAdapter { /*track ->
             val action = DownloadedTracksFragmentDirections
                 .actionDownloadedTracksFragmentToPlayerFragment(track)
-            findNavController().navigate(action)
+            findNavController().navigate(action)*/
         }
 
         binding.recyclerViewDownloadedTracks.adapter = adapter
