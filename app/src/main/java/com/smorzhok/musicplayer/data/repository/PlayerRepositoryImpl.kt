@@ -1,8 +1,12 @@
 package com.smorzhok.musicplayer.data.repository
 
 import android.content.Context
+import android.content.Intent
+import androidx.annotation.OptIn
+import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
-import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.common.util.UnstableApi
+import com.smorzhok.musicplayer.data.MusicService
 import com.smorzhok.musicplayer.domain.model.PlaybackProgress
 import com.smorzhok.musicplayer.domain.model.PlaybackState
 import com.smorzhok.musicplayer.domain.model.Track
@@ -15,9 +19,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@UnstableApi
 class PlayerRepositoryImpl(private val context: Context) : PlayerRepository {
 
-    private val exoPlayer = ExoPlayer.Builder(context).build()
+    private val exoPlayer = MusicService.getPlayer(context)
 
     private var currentTrack: Track? = null
     private val playbackState = MutableStateFlow(PlaybackState.STOPPED)
@@ -49,8 +54,13 @@ class PlayerRepositoryImpl(private val context: Context) : PlayerRepository {
 
     override fun getTrackList(): List<Track> = trackList
 
+    @OptIn(UnstableApi::class)
     override fun play(track: Track) {
         currentTrack = track
+
+        val intent = Intent(context, MusicService::class.java)
+        ContextCompat.startForegroundService(context, intent)
+
         val mediaItem = MediaItem.fromUri(track.previewUrl)
         exoPlayer.setMediaItem(mediaItem)
         exoPlayer.prepare()
