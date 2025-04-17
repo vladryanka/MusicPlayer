@@ -11,7 +11,6 @@ class TrackRepositoryImpl(
     private val localDataSource: LocalMusicDataSource,
     private val remoteDataSource: DeezerRemoteDataSource
 ) : TrackRepository {
-    private var index = 0
 
     override suspend fun searchTracksApi(query: String): List<Track> {
         return remoteDataSource.searchTracks(query).map { it.toDomain() }
@@ -20,9 +19,8 @@ class TrackRepositoryImpl(
         return remoteDataSource.getTrackById(id)
     }
 
-    override suspend fun getChartTracks(): List<Track> {
+    override suspend fun getChartTracks(index: Int): List<Track> {
         val result = remoteDataSource.getChartTracks(index)
-        index += 8
         return result.map { it.toDomain() }
     }
 

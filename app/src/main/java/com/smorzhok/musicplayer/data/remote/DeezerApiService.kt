@@ -1,6 +1,8 @@
 package com.smorzhok.musicplayer.data.remote
 
 import android.content.Context
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.smorzhok.musicplayer.data.dto.ChartResponseDto
 import com.smorzhok.musicplayer.data.dto.TrackDto
@@ -70,6 +72,7 @@ object RepositoryProvider {
     private lateinit var trackRepository: TrackRepository
     private lateinit var playerRepository: PlayerRepository
 
+    @OptIn(UnstableApi::class)
     fun initialize(context: Context) {
 
         val localDataSource = LocalMusicDataSourceImpl(context)
