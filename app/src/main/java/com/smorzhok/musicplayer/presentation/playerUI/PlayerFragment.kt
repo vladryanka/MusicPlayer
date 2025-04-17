@@ -44,12 +44,16 @@ class PlayerFragment : Fragment() {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
                     val track = state.track
+
                     if (track != null) {
                         binding.textViewTitle.text = track.title
                         binding.textViewArtist.text = track.artist
-                        Glide.with(this@PlayerFragment)
-                            .load(track.coverUrl)
-                            .into(binding.imageViewCover)
+                        if (track.coverUrl == "") {
+                            binding.imageViewCover.setImageResource(R.drawable.photo_placeholder)
+                        } else
+                            Glide.with(this@PlayerFragment)
+                                .load(track.coverUrl)
+                                .into(binding.imageViewCover)
 
                         if (state.playbackState == PlaybackState.PLAYING) {
                             binding.buttonPlayPause.setImageResource(R.drawable.pause)
@@ -59,7 +63,8 @@ class PlayerFragment : Fragment() {
 
                         binding.seekBar.max = state.progress.duration
                         binding.seekBar.progress = state.progress.currentPosition
-                        binding.textViewCurrentTime.text = formatTime(state.progress.currentPosition)
+                        binding.textViewCurrentTime.text =
+                            formatTime(state.progress.currentPosition)
                         binding.textViewDuration.text = formatTime(state.progress.duration)
                     }
                 }
