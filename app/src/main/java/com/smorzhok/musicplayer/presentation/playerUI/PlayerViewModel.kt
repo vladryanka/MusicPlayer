@@ -50,8 +50,21 @@ class PlayerViewModel(
     fun pause() = playerRepository.pause()
     fun resume() = playerRepository.resume()
     fun seekTo(position: Int) = playerRepository.seekTo(position)
-    fun next() = playerRepository.playNext()
-    fun previous() = playerRepository.playPrevious()
+    fun next() {
+        playerRepository.playNext()
+        _uiState.update {
+            it.copy(playerRepository.getCurrentTrack())
+        }
+    }
+
+
+    fun previous() {
+        playerRepository.playPrevious()
+        _uiState.update {
+            it.copy(playerRepository.getCurrentTrack())
+        }
+    }
+
 }
 
 

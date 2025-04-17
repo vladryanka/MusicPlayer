@@ -16,4 +16,5 @@
     <string name="play_pause">Play/Pause</string>
     <string name="next">Next</string>
     <string name="time">00:00</string>
+    <string name="dash">-</string>
 </resources>

@@ -1,6 +1,6 @@
 package com.smorzhok.musicplayer.presentation.playerUI
 
-import android.net.Uri
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,8 +11,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.media3.common.MediaItem
-import androidx.media3.exoplayer.ExoPlayer
 import com.bumptech.glide.Glide
 import com.smorzhok.musicplayer.R
 import com.smorzhok.musicplayer.data.remote.RepositoryProvider
@@ -24,7 +22,6 @@ class PlayerFragment : Fragment() {
 
     private var _binding: FragmentPlayerBinding? = null
     private val binding get() = _binding!!
-    private lateinit var player: ExoPlayer
     private val viewModel: PlayerViewModel by viewModels {
         PlayerViewModelFactory(RepositoryProvider.getPlayerRepository())
     }
@@ -40,10 +37,7 @@ class PlayerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        player = ExoPlayer.Builder(requireContext()).build()
-
         val selectedIndex = PlayerFragmentArgs.fromBundle(requireArguments()).initialIndex
-
         viewModel.initWithTrackIndex(selectedIndex)
 
         lifecycleScope.launch {
@@ -57,26 +51,15 @@ class PlayerFragment : Fragment() {
                             .load(track.coverUrl)
                             .into(binding.imageViewCover)
 
-                        val mediaItem = MediaItem.fromUri(track.previewUrl)
-                        if (player.currentMediaItem?.localConfiguration?.uri !=
-                            Uri.parse(track.previewUrl)
-                        ) {
-                            player.setMediaItem(mediaItem)
-                            player.prepare()
-                        }
-
                         if (state.playbackState == PlaybackState.PLAYING) {
-                            player.play()
                             binding.buttonPlayPause.setImageResource(R.drawable.pause)
                         } else {
-                            player.pause()
                             binding.buttonPlayPause.setImageResource(R.drawable.play)
                         }
 
                         binding.seekBar.max = state.progress.duration
                         binding.seekBar.progress = state.progress.currentPosition
-                        binding.textViewCurrentTime.text =
-                            formatTime(state.progress.currentPosition)
+                        binding.textViewCurrentTime.text = formatTime(state.progress.currentPosition)
                         binding.textViewDuration.text = formatTime(state.progress.duration)
                     }
                 }
@@ -104,9 +87,9 @@ class PlayerFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        player.release()
     }
 
+    @SuppressLint("DefaultLocale")
     private fun formatTime(seconds: Int): String {
         val mins = seconds / 60
         val secs = seconds % 60
