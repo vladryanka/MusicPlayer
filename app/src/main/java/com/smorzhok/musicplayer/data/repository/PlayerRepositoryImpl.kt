@@ -58,7 +58,9 @@ class PlayerRepositoryImpl(private val context: Context) : PlayerRepository {
     override fun play(track: Track) {
         currentTrack = track
 
-        val intent = Intent(context, MusicService::class.java)
+        val intent = Intent(context, MusicService::class.java).apply {
+            putExtra("EXTRA_TRACK", currentTrack)
+        }
         ContextCompat.startForegroundService(context, intent)
 
         val mediaItem = MediaItem.fromUri(track.previewUrl)
