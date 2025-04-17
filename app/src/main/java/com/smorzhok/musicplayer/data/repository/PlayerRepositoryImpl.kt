@@ -102,5 +102,4 @@ class PlayerRepositoryImpl(private val context: Context) : PlayerRepository {
     override fun observePlaybackState(): Flow<PlaybackState> = playbackState
 
     override fun observeProgress(): Flow<PlaybackProgress> = progressFlow
-
 }
