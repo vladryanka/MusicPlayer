@@ -11,4 +11,5 @@
     <string name="permission_request">Permission needed to load local tracks</string>
     <string name="search">Поиск по сохраненным</string>
     <string name="search_from_internet">Поиск из сети</string>
+    <string name="retry">Повторить</string>
 </resources>
