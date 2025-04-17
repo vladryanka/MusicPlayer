@@ -7,15 +7,29 @@
     <fragment
         android:id="@+id/downloadedTracksFragment"
         android:name="com.smorzhok.musicplayer.presentation.downloadedUI.DownloadedTracksFragment"
-        android:label="Downloaded Tracks" />
+        android:label="Downloaded Tracks">
+        <action
+            android:id="@+id/action_downloadedTracksFragment_to_playerFragment"
+            app:destination="@id/playerFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/onlineTracksFragment"
         android:name="com.smorzhok.musicplayer.presentation.onlineUI.OnlineTracksFragment"
-        android:label="Online Tracks" />
+        android:label="Online Tracks">
+        <action
+            android:id="@+id/action_onlineTracksFragment_to_playerFragment"
+            app:destination="@id/playerFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/playerFragment"
-        android:name="com.smorzhok.musicplayer.presentation.playerUI.PlayerFragment"
-        android:label="Player" />
+        android:name="com.smorzhok.musicplayer.presentation.PlayerFragment"
+        android:label="Player">
+        <argument
+            android:name="track"
+            android:nullable="false"
+            app:argType="com.smorzhok.musicplayer.domain.model.Track" />
+    </fragment>
+
 </navigation>

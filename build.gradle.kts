@@ -7,3 +7,12 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization) apply false
     alias(libs.plugins.kotlinKapt) apply false
 }
+
+buildscript {
+    repositories {
+        google()
+    }
+    dependencies {
+        classpath (libs.androidx.navigation.safe.args.gradle.plugin)
+    }
+}
