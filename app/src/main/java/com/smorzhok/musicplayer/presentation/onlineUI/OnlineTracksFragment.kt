@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.smorzhok.musicplayer.R
 import com.smorzhok.musicplayer.data.remote.RepositoryProvider
 import com.smorzhok.musicplayer.databinding.FragmentDownloadedTracksBinding
@@ -49,8 +50,24 @@ class OnlineTracksFragment : Fragment() {
         binding.recyclerViewDownloadedTracks.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewDownloadedTracks.adapter = adapter
 
+        binding.recyclerViewDownloadedTracks.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val totalItemCount = layoutManager.itemCount
+                val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+
+                val isLastItemVisible = lastVisibleItemPosition >= totalItemCount - 2
+                if (isLastItemVisible) {
+                    viewModel.loadMoreTracks()
+                }
+            }
+        })
+
         binding.searchEditText.addTextChangedListener { editable ->
             val query = editable.toString()
+            binding.progressBarPagination.visibility = View.VISIBLE
             viewModel.searchTracks(query)
         }
 
@@ -58,6 +75,7 @@ class OnlineTracksFragment : Fragment() {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.tracks.collectLatest {
                     adapter.submitList(it)
+                    binding.progressBarPagination.visibility = View.GONE
                 }
             }
         }
