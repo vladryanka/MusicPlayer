@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -44,10 +45,9 @@ class OnlineTracksFragment : Fragment() {
         binding.textViewHeader.text = getString(R.string.search_from_internet)
 
         adapter = OnlineTracksAdapter { track ->
-            /*
             val action = OnlineTracksFragmentDirections
-                .actionNetworkTracksFragmentToPlayerFragment(track.id)
-            findNavController().navigate(action)*/
+                .actionOnlineTracksFragmentToPlayerFragment(track)
+            findNavController().navigate(action)
         }
 
         binding.recyclerViewDownloadedTracks.layoutManager = LinearLayoutManager(requireContext())

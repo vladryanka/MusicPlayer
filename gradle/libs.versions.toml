@@ -16,6 +16,7 @@ loggingInterceptor = "4.11.0"
 jacksonDatabind = "2.0.1"
 media3Decoder = "1.6.1"
 
+navigationSafeArgsGradlePlugin = "2.8.9"
 room = "2.7.0"
 
 okhttp = "4.11.0"
@@ -28,6 +29,7 @@ navigationUiKtx = "2.8.9"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navigationSafeArgsGradlePlugin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
