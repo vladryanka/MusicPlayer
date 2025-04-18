@@ -1,6 +1,7 @@
 package com.smorzhok.musicplayer.data.remote
 
 import com.smorzhok.musicplayer.data.dto.TrackDto
+import com.smorzhok.musicplayer.data.dto.WrappedAlbumData
 
 class DeezerRemoteDataSourceImpl(
     private val apiService: DeezerApiService
@@ -17,4 +18,10 @@ class DeezerRemoteDataSourceImpl(
     override suspend fun getChartTracks(index: Int): List<TrackDto> {
         return apiService.getChartTracks(index).tracks.data
     }
+
+    override suspend fun getAlbumById(id: Long): WrappedAlbumData {
+        return apiService.getAlbumById(id)
+    }
+
+
 }
