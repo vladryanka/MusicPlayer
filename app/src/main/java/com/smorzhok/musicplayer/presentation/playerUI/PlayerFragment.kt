@@ -12,10 +12,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import com.smorzhok.musicplayer.R
 import com.smorzhok.musicplayer.data.remote.RepositoryProvider
 import com.smorzhok.musicplayer.databinding.FragmentPlayerBinding
 import com.smorzhok.musicplayer.domain.model.PlaybackState
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 class PlayerFragment : Fragment() {
@@ -39,17 +42,35 @@ class PlayerFragment : Fragment() {
 
         val selectedIndex = PlayerFragmentArgs.fromBundle(requireArguments()).initialIndex
         viewModel.initWithTrackIndex(selectedIndex)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.errorMessage
+                    .filter { it.isNotBlank() }
+                    .collectLatest { message ->
+                        Snackbar.make(binding.root, message, Snackbar.LENGTH_INDEFINITE)
+                            .setAction(getString(R.string.retry)) {
+                                viewModel.retry()
+                            }
+                            .show()
+                    }
+            }
+        }
+
 
         lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
                     val track = state.track
+
                     if (track != null) {
                         binding.textViewTitle.text = track.title
                         binding.textViewArtist.text = track.artist
-                        Glide.with(this@PlayerFragment)
-                            .load(track.coverUrl)
-                            .into(binding.imageViewCover)
+                        if (track.coverUrl == "") {
+                            binding.imageViewCover.setImageResource(R.drawable.photo_placeholder)
+                        } else
+                            Glide.with(this@PlayerFragment)
+                                .load(track.coverUrl)
+                                .into(binding.imageViewCover)
 
                         if (state.playbackState == PlaybackState.PLAYING) {
                             binding.buttonPlayPause.setImageResource(R.drawable.pause)
@@ -59,7 +80,8 @@ class PlayerFragment : Fragment() {
 
                         binding.seekBar.max = state.progress.duration
                         binding.seekBar.progress = state.progress.currentPosition
-                        binding.textViewCurrentTime.text = formatTime(state.progress.currentPosition)
+                        binding.textViewCurrentTime.text =
+                            formatTime(state.progress.currentPosition)
                         binding.textViewDuration.text = formatTime(state.progress.duration)
                     }
                 }
