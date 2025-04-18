@@ -14,8 +14,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.smorzhok.musicplayer.R
 import com.smorzhok.musicplayer.data.remote.RepositoryProvider
@@ -47,7 +47,25 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.navController
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNav.setupWithNavController(navController)
+
+        bottomNav.setOnItemSelectedListener { item ->
+            val destinationId = when (item.itemId) {
+                R.id.downloadedTracksFragment -> R.id.downloadedTracksFragment
+                R.id.onlineTracksFragment -> R.id.onlineTracksFragment
+                else -> return@setOnItemSelectedListener false
+            }
+
+            if (navController.currentDestination?.id != destinationId) {
+                val navOptions = NavOptions.Builder()
+                    .setPopUpTo(navController.graph.startDestinationId, false)
+                    .setLaunchSingleTop(true)
+                    .build()
+
+                navController.navigate(destinationId, null, navOptions)
+            }
+
+            true
+        }
 
         checkPermission()
     }
