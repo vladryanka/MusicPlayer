@@ -11,7 +11,6 @@ interface PlayerRepository {
     fun pause()
     fun resume()
     fun getTrackList(): List<Track>
-    fun stop()
     fun seekTo(position: Int)
     fun playNext()
     fun playPrevious()

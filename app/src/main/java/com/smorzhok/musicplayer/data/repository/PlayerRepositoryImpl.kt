@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@Suppress("DEPRECATION")
 @UnstableApi
 class PlayerRepositoryImpl(private val context: Context) : PlayerRepository {
 
@@ -115,12 +116,6 @@ class PlayerRepositoryImpl(private val context: Context) : PlayerRepository {
     override fun resume() {
         exoPlayer.play()
         playbackState.value = PlaybackState.PLAYING
-    }
-
-    override fun stop() {
-        exoPlayer.stop()
-        playbackState.value = PlaybackState.STOPPED
-        playbackProgress.value = PlaybackProgress(0, 0)
     }
 
     override fun seekTo(position: Int) {
