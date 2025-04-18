@@ -8,6 +8,8 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
+import com.smorzhok.musicplayer.data.mapper.toDomain
+import com.smorzhok.musicplayer.data.remote.DeezerRemoteDataSource
 import com.smorzhok.musicplayer.data.service.MusicService
 import com.smorzhok.musicplayer.data.service.PlayerRepositoryHolder
 import com.smorzhok.musicplayer.domain.model.PlaybackProgress
@@ -21,13 +23,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Suppress("DEPRECATION")
 @UnstableApi
 class PlayerRepositoryImpl(
-    private val context: Context
+    private val context: Context,
+    private val remoteDataSource: DeezerRemoteDataSource
 ) : PlayerRepository {
 
     private val exoPlayer = MusicService.getPlayer(context)
@@ -39,6 +43,10 @@ class PlayerRepositoryImpl(
     private val _playbackProgress = MutableStateFlow(PlaybackProgress(0, 0))
 
     private val trackList = mutableListOf<Track>()
+    private val _currentTrackList = MutableStateFlow(trackList)
+
+    private val _currentTrack = MutableStateFlow<Track?>(null)
+    val currentTrackShared: StateFlow<Track?> = _currentTrack
 
     init {
         PlayerRepositoryHolder.playerRepository = this
@@ -93,8 +101,13 @@ class PlayerRepositoryImpl(
 
     override fun observeProgress(): Flow<PlaybackProgress> = _playbackProgress
 
-    override fun play(track: Track) {
+    private fun updateCurrentTrack(track: Track?) {
         currentTrack = track
+        _currentTrack.value = track
+    }
+
+    override fun play(track: Track) {
+        updateCurrentTrack(track)
 
         if (!isNetworkAvailable()) {
             _playbackError.tryEmit("Нет подключения к интернету")
@@ -137,6 +150,15 @@ class PlayerRepositoryImpl(
         val nextIndex = index + 1
         if (nextIndex in trackList.indices) {
             play(trackList[nextIndex])
+        } else {
+            CoroutineScope(Dispatchers.IO).launch {
+                val newTracks = remoteDataSource.getChartTracks(index)
+                val tracks = newTracks.map { it.toDomain() }
+                trackList.addAll(tracks)
+                _currentTrackList.value = trackList
+
+                play(trackList[nextIndex])
+            }
         }
     }
 
@@ -154,4 +176,6 @@ class PlayerRepositoryImpl(
         val activeNetwork = connectivityManager.activeNetworkInfo
         return activeNetwork != null && activeNetwork.isConnected
     }
+
+    override fun observeCurrentTrack(): StateFlow<Track?> = currentTrackShared
 }

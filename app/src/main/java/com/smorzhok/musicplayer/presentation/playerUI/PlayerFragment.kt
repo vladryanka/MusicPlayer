@@ -78,11 +78,14 @@ class PlayerFragment : Fragment() {
                             binding.buttonPlayPause.setImageResource(R.drawable.play)
                         }
 
-                        binding.seekBar.max = state.progress.duration
+
+                        if (state.progress.currentPosition == 0) {
+                            binding.seekBar.max = state.progress.duration
+                            binding.textViewDuration.text = formatTime(state.progress.duration)
+                        }
+
                         binding.seekBar.progress = state.progress.currentPosition
-                        binding.textViewCurrentTime.text =
-                            formatTime(state.progress.currentPosition)
-                        binding.textViewDuration.text = formatTime(state.progress.duration)
+                        binding.textViewCurrentTime.text = formatTime(state.progress.currentPosition)
                     }
                 }
             }

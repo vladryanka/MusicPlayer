@@ -5,6 +5,7 @@ import com.smorzhok.musicplayer.domain.model.PlaybackState
 import com.smorzhok.musicplayer.domain.model.Track
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 
 interface PlayerRepository {
     fun play(track: Track)
@@ -19,4 +20,5 @@ interface PlayerRepository {
     fun observePlaybackState(): Flow<PlaybackState>
     fun observeProgress(): Flow<PlaybackProgress>
     fun setTrackList(tracks: List<Track>, selectedIndex: Int)
+    fun observeCurrentTrack(): StateFlow<Track?>
 }

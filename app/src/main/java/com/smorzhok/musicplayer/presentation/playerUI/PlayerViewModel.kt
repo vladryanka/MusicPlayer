@@ -7,6 +7,7 @@ import com.smorzhok.musicplayer.domain.repository.PlayerRepository
 import com.smorzhok.musicplayer.domain.usecase.player.GetCurrentTrackUseCase
 import com.smorzhok.musicplayer.domain.usecase.player.GetPlaybackError
 import com.smorzhok.musicplayer.domain.usecase.player.GetTrackListUseCase
+import com.smorzhok.musicplayer.domain.usecase.player.ObserveCurrentTrackUseCase
 import com.smorzhok.musicplayer.domain.usecase.player.ObservePlaybackStateUseCase
 import com.smorzhok.musicplayer.domain.usecase.player.ObserveProgressUseCase
 import com.smorzhok.musicplayer.domain.usecase.player.PauseTrackUseCase
@@ -26,10 +27,11 @@ class PlayerViewModel(
     private val playerRepository: PlayerRepository
 ) : ViewModel() {
 
-    private val getTrackListUseCase = GetTrackListUseCase(playerRepository)
-    private val playTrackUseCase = PlayTrackUseCase(playerRepository)
+    private val observeCurrentTrackUseCase = ObserveCurrentTrackUseCase(playerRepository)
     private val observePlaybackStateUseCase = ObservePlaybackStateUseCase(playerRepository)
     private val observeProgressUseCase = ObserveProgressUseCase(playerRepository)
+    private val getTrackListUseCase = GetTrackListUseCase(playerRepository)
+    private val playTrackUseCase = PlayTrackUseCase(playerRepository)
     private val getCurrentTrackUseCase = GetCurrentTrackUseCase(playerRepository)
     private val resumeTrackUseCase = ResumeTrackUseCase(playerRepository)
     private val playPreviousTrackUseCase = PlayPreviousTrackUseCase(playerRepository)
@@ -41,8 +43,11 @@ class PlayerViewModel(
     private val _uiState = MutableStateFlow(PlayerUiState())
     val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
 
-    private val _errorMessage = MutableStateFlow<String>("")
+    private val _errorMessage = MutableStateFlow("")
     val errorMessage: SharedFlow<String> = _errorMessage
+
+    private val _track = MutableStateFlow<Track?>(null)
+    val track: StateFlow<Track?> = _track
 
     fun initWithTrackIndex(index: Int) {
         viewModelScope.launch {
@@ -64,6 +69,7 @@ class PlayerViewModel(
     }
 
     init {
+
         viewModelScope.launch {
             observePlaybackStateUseCase.invoke().collect { state ->
                 _uiState.update { it.copy(playbackState = state) }
@@ -72,6 +78,14 @@ class PlayerViewModel(
         viewModelScope.launch {
             getPlaybackError.invoke().collect { errorMessage ->
                 _errorMessage.emit(errorMessage)
+            }
+        }
+
+        viewModelScope.launch {
+            observeCurrentTrackUseCase().collect { updatedTrack ->
+                _track.value = updatedTrack
+                _uiState.update { it.copy(track = updatedTrack) }
+
             }
         }
 
@@ -92,13 +106,13 @@ class PlayerViewModel(
 
     fun play(track: Track) {
         viewModelScope.launch {
-                try {
-                    playTrackUseCase.invoke(track)
-                    _uiState.update { it.copy(track = track) }
-                    _errorMessage.emit("")
-                } catch (e: Exception) {
-                    _errorMessage.emit("${e.message}")
-                }
+            try {
+                playTrackUseCase.invoke(track)
+                _uiState.update { it.copy(track = track) }
+                _errorMessage.emit("")
+            } catch (e: Exception) {
+                _errorMessage.emit("${e.message}")
+            }
         }
     }
 
