@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.smorzhok.musicplayer.domain.model.Track
 import com.smorzhok.musicplayer.domain.repository.PlayerRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -17,6 +18,9 @@ class PlayerViewModel(
 
     private val _uiState = MutableStateFlow(PlayerUiState())
     val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
+
+    private val _errorMessage = MutableStateFlow<String>("")
+    val errorMessage: SharedFlow<String> = _errorMessage
 
     fun initWithTrackIndex(index: Int) {
         Log.d("Doing", index.toString())
@@ -32,6 +36,11 @@ class PlayerViewModel(
                 _uiState.update { it.copy(playbackState = state) }
             }
         }
+        viewModelScope.launch {
+            playerRepository.getPlaybackError().collect { errorMessage ->
+                _errorMessage.emit(errorMessage)
+            }
+        }
 
         viewModelScope.launch {
             playerRepository.observeProgress().collect { progress ->
@@ -42,9 +51,22 @@ class PlayerViewModel(
         _uiState.update { it.copy(track = playerRepository.getCurrentTrack()) }
     }
 
+    fun retry() {
+        uiState.value.track?.let {
+            play(it)
+        }
+    }
+
     fun play(track: Track) {
-        playerRepository.play(track)
-        _uiState.update { it.copy(track = track) }
+        viewModelScope.launch {
+                try {
+                    playerRepository.play(track)
+                    _uiState.update { it.copy(track = track) }
+                    _errorMessage.emit("")
+                } catch (e: Exception) {
+                    _errorMessage.emit("${e.message}")
+                }
+        }
     }
 
     fun pause() = playerRepository.pause()

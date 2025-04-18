@@ -12,10 +12,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import com.smorzhok.musicplayer.R
 import com.smorzhok.musicplayer.data.remote.RepositoryProvider
 import com.smorzhok.musicplayer.databinding.FragmentPlayerBinding
 import com.smorzhok.musicplayer.domain.model.PlaybackState
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 class PlayerFragment : Fragment() {
@@ -39,6 +42,20 @@ class PlayerFragment : Fragment() {
 
         val selectedIndex = PlayerFragmentArgs.fromBundle(requireArguments()).initialIndex
         viewModel.initWithTrackIndex(selectedIndex)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.errorMessage
+                    .filter { it.isNotBlank() }
+                    .collectLatest { message ->
+                        Snackbar.make(binding.root, message, Snackbar.LENGTH_INDEFINITE)
+                            .setAction(getString(R.string.retry)) {
+                                viewModel.retry()
+                            }
+                            .show()
+                    }
+            }
+        }
+
 
         lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
