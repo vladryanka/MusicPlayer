@@ -29,9 +29,6 @@ import com.smorzhok.musicplayer.R
 import com.smorzhok.musicplayer.data.broadcast.NotificationActionReceiver
 import com.smorzhok.musicplayer.data.repository.PlayerRepositoryImpl
 import com.smorzhok.musicplayer.data.service.PlayerRepositoryHolder.playerRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @UnstableApi
 class MusicService : MediaSessionService() {
@@ -94,22 +91,12 @@ class MusicService : MediaSessionService() {
         } else {
             player.play()
         }
-        CoroutineScope(Dispatchers.Main).launch {
-            kotlinx.coroutines.delay(200)
-            showNotification()
-        }
+        showNotification()
     }
 
     private fun playNextFromNotification() {
-        if (!wasNotifiedOnce) {
-            CoroutineScope(Dispatchers.IO).launch {
-                playerRepository?.changeListFromNotificationPlayer()
-            }
-            wasNotifiedOnce = true
-        } else {
             val repo = playerRepository
             repo?.playNext()
-        }
     }
 
     private fun playPrevFromNotification() {
@@ -137,6 +124,18 @@ class MusicService : MediaSessionService() {
         createNotificationChannel()
 
         val player = getPlayer(this)
+
+        player.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                showNotification()
+            }
+
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                showNotification()
+            }
+        })
+
+
         mediaSession = MediaSession.Builder(this, player).build()
     }
 
@@ -149,7 +148,9 @@ class MusicService : MediaSessionService() {
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(remoteViews)
             .setCustomBigContentView(remoteViews)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setOnlyAlertOnce(true)
+            .setSound(null)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
 
         val notification = builder.build()
@@ -222,6 +223,11 @@ class MusicService : MediaSessionService() {
         remoteViews.setOnClickPendingIntent(R.id.btn_prev, createPendingIntent("ACTION_PREV"))
         remoteViews.setOnClickPendingIntent(R.id.btn_next, createPendingIntent("ACTION_NEXT"))
 
+        val duration = player.duration
+        val position = player.currentPosition
+        val progress = if (duration > 0) ((position * 100) / duration).toInt() else 0
+        remoteViews.setProgressBar(R.id.progress_bar, 100, progress, false)
+
         if (albumBitmap != null) {
             remoteViews.setImageViewBitmap(R.id.track_icon, albumBitmap)
         } else {
@@ -244,8 +250,6 @@ class MusicService : MediaSessionService() {
         )
     }
 
-
-
     private fun createNotificationChannel() {
 
         Log.d("Doing", "Попали в createNotificationChannel")
@@ -253,7 +257,7 @@ class MusicService : MediaSessionService() {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 "Music Player",
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_LOW
             )
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
