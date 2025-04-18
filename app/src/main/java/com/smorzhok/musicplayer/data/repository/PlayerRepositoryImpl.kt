@@ -38,7 +38,6 @@ class PlayerRepositoryImpl(private val context: Context) : PlayerRepository {
     private val _playbackState = MutableStateFlow(PlaybackState.STOPPED)
     private val playbackProgress = MutableStateFlow(PlaybackProgress(0, 0))
     private val _playbackProgress = MutableStateFlow(PlaybackProgress(0, 0))
-    private val progressFlow = MutableStateFlow(PlaybackProgress(0, 30))
 
     init {
         exoPlayer.addListener(object : Player.Listener {
@@ -143,5 +142,5 @@ class PlayerRepositoryImpl(private val context: Context) : PlayerRepository {
 
     override fun observePlaybackState(): Flow<PlaybackState> = playbackState
 
-    override fun observeProgress(): Flow<PlaybackProgress> = progressFlow
+    override fun observeProgress(): Flow<PlaybackProgress> = _playbackProgress
 }

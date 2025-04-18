@@ -1,6 +1,5 @@
 package com.smorzhok.musicplayer.presentation.playerUI
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smorzhok.musicplayer.domain.model.Track
@@ -46,11 +45,22 @@ class PlayerViewModel(
     val errorMessage: SharedFlow<String> = _errorMessage
 
     fun initWithTrackIndex(index: Int) {
-        Log.d("Doing", index.toString())
-        val track = getTrackListUseCase.invoke()[index]
-        _uiState.value = PlayerUiState(track = track)
-        Log.d("Doing", track.title)
-        playTrackUseCase.invoke(track)
+        viewModelScope.launch {
+            val tracks = getTrackListUseCase.invoke()
+            if (index in tracks.indices) {
+                val track = tracks[index]
+                _uiState.update { it.copy(track = track) }
+
+                try {
+                    playTrackUseCase(track)
+                    _errorMessage.emit("")
+                } catch (e: Exception) {
+                    _errorMessage.emit(e.message ?: "Playback failed")
+                }
+            } else {
+                _errorMessage.emit("Invalid track index")
+            }
+        }
     }
 
     init {
@@ -96,17 +106,17 @@ class PlayerViewModel(
     fun resume() = resumeTrackUseCase.invoke()
     fun seekTo(position: Int) = seekToUseCase.invoke(position)
     fun next() {
-        playNextTrackUseCase.invoke()
-        _uiState.update {
-            it.copy(getCurrentTrackUseCase.invoke())
+        viewModelScope.launch {
+            playNextTrackUseCase()
+            _uiState.update { it.copy(track = getCurrentTrackUseCase()) }
         }
     }
 
 
     fun previous() {
-        playPreviousTrackUseCase.invoke()
-        _uiState.update {
-            it.copy(getCurrentTrackUseCase.invoke())
+        viewModelScope.launch {
+            playPreviousTrackUseCase()
+            _uiState.update { it.copy(track = getCurrentTrackUseCase()) }
         }
     }
 
