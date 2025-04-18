@@ -3,13 +3,17 @@ package com.smorzhok.musicplayer.data.repository
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import com.smorzhok.musicplayer.data.MusicService
+import com.smorzhok.musicplayer.data.mapper.toDomain
+import com.smorzhok.musicplayer.data.remote.DeezerRemoteDataSource
+import com.smorzhok.musicplayer.data.service.MusicService
+import com.smorzhok.musicplayer.data.service.PlayerRepositoryHolder
 import com.smorzhok.musicplayer.domain.model.PlaybackProgress
 import com.smorzhok.musicplayer.domain.model.PlaybackState
 import com.smorzhok.musicplayer.domain.model.Track
@@ -26,7 +30,10 @@ import kotlinx.coroutines.withContext
 
 @Suppress("DEPRECATION")
 @UnstableApi
-class PlayerRepositoryImpl(private val context: Context) : PlayerRepository {
+class PlayerRepositoryImpl(
+    private val context: Context,
+    private val remoteDataSource: DeezerRemoteDataSource
+) : PlayerRepository {
 
     private val exoPlayer = MusicService.getPlayer(context)
 
@@ -40,6 +47,7 @@ class PlayerRepositoryImpl(private val context: Context) : PlayerRepository {
     private val _playbackProgress = MutableStateFlow(PlaybackProgress(0, 0))
 
     init {
+        PlayerRepositoryHolder.playerRepository = this
         exoPlayer.addListener(object : Player.Listener {
             override fun onPlayerError(error: PlaybackException) {
                 _playbackError.tryEmit("Ошибка воспроизведения: ${error.message}")
@@ -61,7 +69,33 @@ class PlayerRepositoryImpl(private val context: Context) : PlayerRepository {
         }
     }
 
+    suspend fun changeListFromNotificationPlayer() {
+        val albumId = currentTrack?.album?.id ?: return
+        val albumResponse = remoteDataSource.getAlbumById(albumId)
+        val trackDtos = albumResponse.data
+        val newTrackList = mutableListOf<Track>()
+        for (trackDto in trackDtos) {
+            try {
+                val detailedTrack = remoteDataSource.getTrackById(trackDto.id)
+                newTrackList.add(detailedTrack.toDomain())
+            } catch (e: Exception) {
+                Log.d("PlayerRepository", "Ошибка при получении данных о треке: ${trackDto.title}")
+            }
+        }
+
+        if (newTrackList.isNotEmpty()) {
+            trackNotifPlayerList.clear()
+            trackNotifPlayerList.addAll(newTrackList)
+
+            currentTrack = newTrackList.getOrNull(0)
+
+            play(currentTrack!!)
+        }
+    }
+
     private val trackList = mutableListOf<Track>()
+
+    private val trackNotifPlayerList = mutableListOf<Track>()
 
     override fun setTrackList(tracks: List<Track>, selectedIndex: Int) {
         trackList.clear()
@@ -69,7 +103,7 @@ class PlayerRepositoryImpl(private val context: Context) : PlayerRepository {
         currentTrack = trackList[selectedIndex]
     }
 
-    override fun getPlaybackError():  SharedFlow<String> = _playbackError
+    override fun getPlaybackError(): SharedFlow<String> = _playbackError
 
 
     override fun getTrackList(): List<Track> = trackList
@@ -102,7 +136,8 @@ class PlayerRepositoryImpl(private val context: Context) : PlayerRepository {
     }
 
     private fun isNetworkAvailable(): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork = connectivityManager.activeNetworkInfo
         return activeNetwork != null && activeNetwork.isConnected
     }

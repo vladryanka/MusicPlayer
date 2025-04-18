@@ -1,21 +1,18 @@
-package com.smorzhok.musicplayer.data
+package com.smorzhok.musicplayer.data.broadcast
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.OptIn
-import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
+import com.smorzhok.musicplayer.data.service.MusicService
 
 class NotificationActionReceiver : BroadcastReceiver() {
     @OptIn(UnstableApi::class)
     override fun onReceive(context: Context, intent: Intent) {
-        val player = MusicService.getPlayer(context)
         when (intent.action) {
             "ACTION_PLAY_PAUSE" -> {
-                // Вставь логику для переключения между паузой и воспроизведением
-
-                Log.d("MusicControlReceiver", "Play/Pause clicked")
+                val player = MusicService.getPlayer(context)
                 if (player.isPlaying) {
                     player.pause()
                 } else {
@@ -23,11 +20,17 @@ class NotificationActionReceiver : BroadcastReceiver() {
                 }
             }
             "ACTION_NEXT" -> {
-                // Логика для следующего трека
+                val serviceIntent = Intent(context, MusicService::class.java)
+                serviceIntent.action = "ACTION_NEXT"
+                context.startService(serviceIntent)
             }
             "ACTION_PREV" -> {
-                // Логика для предыдущего трека
+                val serviceIntent = Intent(context, MusicService::class.java)
+                serviceIntent.action = "ACTION_PREV"
+                context.startService(serviceIntent)
             }
+
         }
     }
+
 }

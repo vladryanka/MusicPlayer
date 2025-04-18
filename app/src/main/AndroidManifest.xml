@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -27,7 +28,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".data.MusicService"
+            android:name=".data.service.MusicService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback"
             android:enabled="true">
@@ -36,7 +37,7 @@
             </intent-filter>
         </service>
         <receiver
-            android:name=".data.NotificationActionReceiver"
+            android:name=".data.broadcast.NotificationActionReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

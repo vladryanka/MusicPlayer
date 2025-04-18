@@ -7,6 +7,7 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import com.smorzhok.musicplayer.data.dto.ChartResponseDto
 import com.smorzhok.musicplayer.data.dto.TrackDto
 import com.smorzhok.musicplayer.data.dto.TrackListDto
+import com.smorzhok.musicplayer.data.dto.WrappedAlbumData
 import com.smorzhok.musicplayer.data.repository.PlayerRepositoryImpl
 import com.smorzhok.musicplayer.data.repository.TrackRepositoryImpl
 import com.smorzhok.musicplayer.domain.repository.PlayerRepository
@@ -35,6 +36,11 @@ interface DeezerApiService {
 
     @GET("track/{id}")
     suspend fun getTrackById(@Path("id") id: Long): TrackDto
+
+    @GET("album/{id}/tracks")
+    suspend fun getAlbumById(
+        @Path("id") id: Long,
+    ): WrappedAlbumData
 }
 
 object DeezerApi {
@@ -79,7 +85,7 @@ object RepositoryProvider {
         val remoteDataSource = DeezerRemoteDataSourceImpl(DeezerApi.service)
 
         trackRepository = TrackRepositoryImpl(localDataSource, remoteDataSource)
-        playerRepository = PlayerRepositoryImpl(context)
+        playerRepository = PlayerRepositoryImpl(context, remoteDataSource)
     }
 
     fun getTrackRepository(): TrackRepository {
